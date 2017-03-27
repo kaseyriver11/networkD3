@@ -174,14 +174,16 @@ HTMLWidgets.widget({
       .style("opacity", options.opacity)
       .style("stroke-width", "1.5px");
 
-    node.append("svg:text")
+    node.append("text")
       .attr("class", "nodetext")
       .attr("dx", 12)
       .attr("dy", ".35em")
       .text(function(d) { return d.name })
       .style("font", options.fontSize + "px " + options.fontFamily)
       .style("opacity", options.opacityNoHover)
-      .style("pointer-events", "none");
+      .style("pointer-events", "none")
+	  .call(wrap);
+	  
 
     function tick() {
       node.attr("transform", function(d) {
@@ -251,6 +253,39 @@ HTMLWidgets.widget({
         .style("font", options.fontSize + "px ")
         .style("opacity", options.opacityNoHover);
     }
+	
+	function wrap(text) {
+    text.each(function () {
+        var text = d3.select(this),
+			keep = text.attr("x"),
+            words = text.text().split(",").reverse(),
+            word,
+            line = [],
+            lineNumber = 0,
+            lineHeight = 0.7, // ems
+            x = text.attr("x"),
+            y = text.attr("y"),
+            dy = parseFloat(text.attr("dy")),
+            tspan = text.text(null)
+                        .append("tspan")
+                        .attr("x", 0)
+                        .attr("y", y)
+                        .attr("dy", dy + "em");
+        while (word = words.pop()) {
+            line.push(word);
+            tspan.text(line.join(" "));
+			line.pop();
+			tspan.text(line.join(" "));
+			line = [word];
+			tspan = text.append("tspan")
+						.attr("x", 0)
+						.attr("y", y)
+						.attr("dy", "1em")
+						.text(word);
+            
+        }
+    });
+	}
 
     function click(d) {
       return eval(options.clickAction)
@@ -261,7 +296,7 @@ HTMLWidgets.widget({
         var legendRectSize = 18;
         var legendSpacing = 4;
         var legend = svg.selectAll('.legend')
-          .data(color.domain())
+          .data(color.domain().sort())
           .enter()
           .append('g')
           .attr('class', 'legend')
@@ -272,6 +307,7 @@ HTMLWidgets.widget({
             var vert = i * height+4;
             return 'translate(' + horz + ',' + vert + ')';
           });
+		console.log(legend)
 
         legend.append('rect')
           .attr('width', legendRectSize)
