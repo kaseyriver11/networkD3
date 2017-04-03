@@ -34,10 +34,12 @@ HTMLWidgets.widget({
                     return 6}
 
     }
-
-
+		
+	
     // alias options
     var options = x.options;
+	
+	var searchName = document.getElementById('actorSelect').value
 
     // convert links and nodes data frames to d3 friendly format
     var links = HTMLWidgets.dataframeToD3(x.links);
@@ -57,7 +59,6 @@ HTMLWidgets.widget({
     // get the width and height
     var width = el.offsetWidth;
     var height = el.offsetHeight;
-
     var color = eval(options.colourScale);
 
     // set this up even if zoom = F
@@ -116,7 +117,7 @@ HTMLWidgets.widget({
     } else {
       zoom.on("zoom", null);
     }
-
+	
     // draw links
     var link = svg.selectAll(".link")
       .data(links)
@@ -167,13 +168,12 @@ HTMLWidgets.widget({
       .on("mouseout", mouseout)
       .on("click", click)
       .call(drag);
-
+	  
     node.append("circle")
-      .attr("r", function(d){return nodeSize(d);})
+	  .attr("r", function(d){if(d.name.indexOf(searchName) >= 0){return nodeSize(d)*5;}else{return nodeSize(d);}})
       .style("stroke", "#fff")
       .style("opacity", options.opacity)
       .style("stroke-width", "1.5px");
-
     node.append("text")
       .attr("class", "nodetext")
       .attr("dx", 12)
@@ -221,12 +221,16 @@ HTMLWidgets.widget({
       // unfocus non-connected links and nodes
       //if (options.focusOnHover) {
         var unfocusDivisor = 4;
+		var searchName = document.getElementById('actorSelect').value
+		console.log(searchName)
 
         link.transition().duration(200)
           .style("opacity", function(l) { return d != l.source && d != l.target ? +options.opacity / unfocusDivisor : +options.opacity });
 
         node.transition().duration(200)
-          .style("opacity", function(o) { return d.index == o.index || neighboring(d, o) ? +options.opacity : +options.opacity / unfocusDivisor; });
+          .style("opacity", function(o) { return d.index == o.index || neighboring(d, o) ? +options.opacity : +options.opacity / unfocusDivisor; })
+		  .style("stroke-width", function(o){return "20.5px";});
+
       //}
 
       d3.select(this).select("circle").transition()
@@ -238,6 +242,10 @@ HTMLWidgets.widget({
         .style("stroke-width", ".5px")
         .style("font", options.clickTextSize + "px ")
         .style("opacity", 1);
+		
+	  d3.selectAll('circle').attr('r', function(d){if(d.name.indexOf(searchName) >= 0){return nodeSize(d)*5;}else{return nodeSize(d);}});
+
+	  
     }
 
     function mouseout() {
@@ -253,6 +261,7 @@ HTMLWidgets.widget({
         .style("font", options.fontSize + "px ")
         .style("opacity", options.opacityNoHover);
     }
+
 	
 	function wrap(text) {
     text.each(function () {
@@ -307,7 +316,6 @@ HTMLWidgets.widget({
             var vert = i * height+4;
             return 'translate(' + horz + ',' + vert + ')';
           });
-		console.log(legend)
 
         legend.append('rect')
           .attr('width', legendRectSize)
@@ -323,5 +331,7 @@ HTMLWidgets.widget({
 
     // make font-family consistent across all elements
     d3.select(el).selectAll('text').style('font-family', options.fontFamily);
+	
+	
   },
 });

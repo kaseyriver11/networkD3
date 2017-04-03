@@ -169,7 +169,8 @@ forceNetwork <- function(Links,
                          arrows = FALSE,
                          bounded = FALSE,
                          opacityNoHover = 0,
-                         clickAction = NULL)
+                         clickAction = NULL,
+                         searchID = NULL)
 {
     # Check if data is zero indexed
     check_zero(Links[, Source], Links[, Target])
@@ -231,7 +232,8 @@ forceNetwork <- function(Links,
             radiusCalculation = radiusCalculation,
             bounded = bounded,
             opacityNoHover = opacityNoHover,
-            clickAction = clickAction
+            clickAction = clickAction,
+            searchID = searchID
     )
 
     # create widget
